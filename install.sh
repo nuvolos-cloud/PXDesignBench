@@ -7,7 +7,7 @@ set -euo pipefail
 # This script will:
 #   1. Create a dedicated conda/mamba/micromamba environment
 #   2. Install GPU PyTorch matching a specified CUDA version
-#   3. Install Protenix (dev_design_update branch)
+#   3. Install Protenix (PyPI, v1.0.5)
 #   4. Clone PXDesignBench repo and install
 #   5. Run basic import sanity checks
 #
@@ -239,7 +239,7 @@ PYTORCH_CHECK
 # ----------------------------------------------------------
 
 echo ">>> Installing Protenix"
-pip install --no-cache-dir "git+https://github.com/bytedance/Protenix.git@v0.5.0+pxd" \
+pip install --no-cache-dir "protenix==1.0.5" \
   || { echo "Error: failed to install Protenix."; exit 1; }
 
 echo ">>> Installing PXDesignBench base dependencies"

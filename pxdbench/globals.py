@@ -40,6 +40,8 @@ TMALIGN_PATH = os.path.join(os.path.dirname(__file__), "metrics", "TMalign")
 AF2_PARAMS_PATH = get_ckpt_path("af2")
 ESMFOLD_MODEL_PATH = get_ckpt_path("esmfold")
 
+PTX_WEIGHTS_PATH = "/pxdesign"
+
 MPNN_CKPT_PATH = {
     "ca": get_ckpt_path("mpnn", "ca_model_weights"),
     "bb": get_ckpt_path("mpnn", "vanilla_model_weights"),
