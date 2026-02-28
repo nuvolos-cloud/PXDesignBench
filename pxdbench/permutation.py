@@ -19,7 +19,7 @@ from Bio.PDB.Residue import Residue
 from Bio.PDB.Structure import Structure
 
 # Your project (Biotite-backed) I/O for mmCIF
-from protenix.data.parser import MMCIFParser  # loads AtomArray
+from protenix.data.core.parser import MMCIFParser  # loads AtomArray
 from protenix.data.utils import CIFWriter
 from scipy.optimize import linear_sum_assignment
 

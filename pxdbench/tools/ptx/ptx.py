@@ -23,8 +23,8 @@ from typing import Any, Mapping
 
 import numpy as np
 import torch
-from protenix.data.infer_data_pipeline import InferenceDataset
-from protenix.data.json_maker import cif_to_input_json
+from protenix.data.inference.infer_dataloader import InferenceDataset
+from protenix.data.inference import cif_to_input_json
 from protenix.data.utils import pdb_to_cif
 from protenix.model.protenix import Protenix
 from protenix.utils.seed import seed_everything

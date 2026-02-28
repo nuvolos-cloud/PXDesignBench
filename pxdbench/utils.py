@@ -31,8 +31,8 @@ from Bio.PDB.Polypeptide import is_aa
 from biotite.structure import get_residue_starts
 from natsort import natsorted
 
-from protenix.data import ccd
-from protenix.data.parser import MMCIFParser
+from protenix.data.core import ccd
+from protenix.data.core.parser import MMCIFParser
 
 three_to_one = {
     "ALA": "A",
