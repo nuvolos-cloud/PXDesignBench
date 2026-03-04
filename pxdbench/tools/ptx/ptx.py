@@ -44,6 +44,17 @@ from pxdbench.utils import concat_dict_values, convert_cif_to_pdb
 logger = logging.getLogger(__name__)
 
 
+def _supports_cuequivariance(device: str) -> bool:
+    """Return True if the GPU compute capability is >= 8.0 (Ampere+),
+    which is required for the cuequivariance triangle kernels."""
+    try:
+        idx = torch.device(device).index
+        major, _ = torch.cuda.get_device_capability(idx if idx is not None else 0)
+        return major >= 8
+    except Exception:
+        return False
+
+
 class ProtenixFilter(ProtenixAPI):
     def __init__(self, cfg, device="cuda:0"):
         self.cfg = cfg
@@ -53,6 +64,11 @@ class ProtenixFilter(ProtenixAPI):
         self.ptx_cfg.use_deepspeed_evo_attention = self.cfg.get(
             "use_deepspeed_evo_attention", True
         )
+        # cuequivariance kernels require compute capability >= 8.0 (Ampere+).
+        # Fall back to plain torch on older GPUs (Turing cc 7.x and below).
+        if not _supports_cuequivariance(device):
+            self.ptx_cfg.triangle_attention = "torch"
+            self.ptx_cfg.triangle_multiplicative = "torch"
         self.ptx_cfg.data.msa.min_size.test = 2000
         self.ptx_cfg.data.msa.sample_cutoff.test = 2000
         if self.cfg.get("load_checkpoint_dir", ""):
@@ -333,11 +349,12 @@ class ProtenixFilter(ProtenixAPI):
         N_cycle=4,
         use_msa=True,
     ):
+        _infer_cfg = deepcopy(self.ptx_cfg)
+        _infer_cfg.input_json_path = input_json_path
+        _infer_cfg.dump_dir = None
+        _infer_cfg.use_msa = use_msa
         inference_dataset = InferenceDataset(
-            input_json_path=input_json_path,
-            use_msa=use_msa,
-            dump_dir=None,
-            configs=self.ptx_cfg,
+            configs=_infer_cfg,
         )
         os.makedirs(dump_dir, exist_ok=True)
         dumper = DataDumper(base_dir=dump_dir)
@@ -381,7 +398,7 @@ class ProtenixFilter(ProtenixAPI):
             pred_cif_path = os.path.join(
                 save_dir,
                 "predictions",
-                f"{sample_name}_seed_{seed}_sample_0.cif",
+                f"{sample_name}_sample_0.cif",
             )
             pred_pdb_path = os.path.join(dump_dir, f"{sample_name}.pdb")
             convert_cif_to_pdb(pred_cif_path, pred_pdb_path)
