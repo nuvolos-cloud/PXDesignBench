@@ -208,12 +208,11 @@ class ProtenixFilter(ProtenixAPI):
         use_msa=True,
         suffix="",
     ):
-        inference_dataset = InferenceDataset(
-            input_json_path=input_json_path,
-            dump_dir=None,
-            use_msa=use_msa,
-            configs=self.ptx_cfg,
-        )
+        _infer_cfg = deepcopy(self.ptx_cfg)
+        _infer_cfg.input_json_path = input_json_path
+        _infer_cfg.dump_dir = None
+        _infer_cfg.use_msa = use_msa
+        inference_dataset = InferenceDataset(configs=_infer_cfg)
         os.makedirs(dump_dir, exist_ok=True)
         dumper = DataDumper(base_dir=dump_dir)
 
@@ -282,9 +281,12 @@ class ProtenixFilter(ProtenixAPI):
                     design_pdb_dir, sample_name.rsplit("_seq", 1)[0] + ".pdb"
                 )
                 if os.path.isfile(design_pdb_path):
-                    rmsd = permute_generated_min_complex_rmsd(
-                        pred_pdb_path, design_pdb_path, pred_pdb_path
-                    )
+                    try:
+                        rmsd = permute_generated_min_complex_rmsd(
+                            pred_pdb_path, design_pdb_path, pred_pdb_path
+                        )
+                    except ValueError:
+                        rmsd = None
                 else:
                     rmsd = None
                 if rmsd is not None:

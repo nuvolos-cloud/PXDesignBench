@@ -18,6 +18,17 @@ import logging
 import os
 import re
 
+import numpy as np
+
+
+class _NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
 from colabdesign import clear_mem, mk_afdesign_model
 from colabdesign.shared.utils import copy_dict
 
@@ -92,7 +103,7 @@ def predict_binder_structure(
             )
             permute_generated_min_complex_rmsd(output_pdb, ori_design_pdb, output_pdb)
             with open(output_stats_json, "w") as f:
-                json.dump(stats, f)
+                json.dump(stats, f, cls=_NumpyEncoder)
 
         prediction_stats[model_num] = stats
 
@@ -232,7 +243,7 @@ def main():
         )
 
         with open(args.output, "w") as f:
-            json.dump(results, f)
+            json.dump(results, f, cls=_NumpyEncoder)
 
         print(f"Successfully completed AF2 binder complex prediction!")
 
