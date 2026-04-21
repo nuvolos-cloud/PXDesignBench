@@ -72,7 +72,7 @@ eval_configs = {
                 "use_msa": True,
             },
             "ptx": {
-                "model_name": "protenix_base_20250630_v1.0.0",
+                "model_name": "protenix-v2",
                 "load_checkpoint_dir": "/pxdesign",
                 "dtype": "bf16",
                 "use_deepspeed_evo_attention": True,

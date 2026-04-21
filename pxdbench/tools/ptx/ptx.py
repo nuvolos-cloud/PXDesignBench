@@ -79,7 +79,17 @@ class ProtenixFilter(ProtenixAPI):
         self.init_model()
 
     def init_model(self):
-        _, model_size, model_feature, model_version = self.model_name.split("_")
+        model_name_parts = self.model_name.split("_", 3)
+        if len(model_name_parts) == 4:
+            _, model_size, model_feature, model_version = model_name_parts
+        elif self.model_name == "protenix-v2":
+            model_size = "464M"
+            model_feature = "default"
+            model_version = "v2"
+        else:
+            model_size = "unknown"
+            model_feature = "unknown"
+            model_version = "unknown"
         logger.info(
             f"Inference by Protenix: model_size: {model_size}, with_feature: {model_feature.replace('-',', ')}, model_version: {model_version}"
         )
